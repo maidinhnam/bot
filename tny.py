@@ -1,5 +1,7 @@
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup, ReplyKeyboardMarkup, KeyboardButton
 from telegram.ext import Application, CommandHandler, CallbackQueryHandler, MessageHandler, filters, CallbackContext
+import os
+import asyncio
 
 # Token của bot Telegram
 TOKEN = '7061710795:AAFW210fA7936MgbMRHNDi4sZYkRu3sSbkk'
@@ -76,7 +78,21 @@ def main():
     application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
 
     # Bắt đầu bot
-    application.run_polling()
+    webhook_host = 'https://tny-bot.onrender.com'
+    webhook_path = f'/webhook/{TOKEN}'
+    webhook_url = f'{webhook_host}{webhook_path}'
 
+    # Cài đặt webhook với URL HTTPS hợp lệ
+    application.bot.set_webhook(url=webhook_url)
+
+    port = int(os.getenv('PORT', 4000))
+    application.run_webhook(
+        listen="0.0.0.0",
+        port=port,
+        url_path=webhook_path,
+        webhook_url=webhook_url,
+    )
+
+# Chạy hàm main() nếu đang chạy từ môi trường không có vòng lặp sự kiện sẵn
 if __name__ == '__main__':
     main()
